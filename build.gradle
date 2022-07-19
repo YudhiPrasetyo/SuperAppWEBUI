@@ -1,0 +1,39 @@
+apply plugin: 'java'
+
+
+repositories {
+    mavenCentral()
+}
+
+project.ext {
+    cucumberVersion = '5.6.0'
+}
+
+dependencies {
+    implementation 'org.testng:testng:7.1.0'
+    implementation("org.junit.jupiter:junit-jupiter-params:5.8.0")
+    testImplementation 'io.cucumber:cucumber-java:' + cucumberVersion
+    implementation 'org.seleniumhq.selenium:selenium-java:3.141.59'
+    implementation group: 'io.github.bonigarcia', name: 'webdrivermanager', version: '5.1.1'
+    implementation group: 'io.appium', name: 'java-client', version: '8.0.0'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.2.4.RELEASE'
+    testImplementation 'io.cucumber:cucumber-junit:7.3.2'
+
+}
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
+task cucumber() {
+    dependsOn assemble, compileTestJava
+    doLast {
+        javaexec {
+            main = "io.cucumber.core.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = ['--plugin', 'html:reports/test-report', '--plugin', 'pretty', '--glue', 'com.android.hook', 'src/test/resources']
+        }
+    }
+}
